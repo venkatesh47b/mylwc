@@ -1,0 +1,16 @@
+<template>
+    <lightning-card title="Account List">
+        <div class="slds-m-around_medium">
+            <lightning-checkbox-group
+                options={columnOptions}
+                value={selectedColumns}
+                onchange={handleColumnChange}>
+            </lightning-checkbox-group>
+            <lightning-datatable
+                key-field="Id"
+                data={accounts}
+                columns={visibleColumns}>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+</template>

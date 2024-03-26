@@ -1,0 +1,10 @@
+<template>
+    <lightning-card title="Account Export" icon-name="standard:account">
+    <lightning-button label="Export Data" onclick={handleExport} variant="brand"></lightning-button>
+    <lightning-datatable
+                key-field="Id"
+                data={accounts}
+                columns={columns}>
+            </lightning-datatable>
+    </lightning-card>
+</template>

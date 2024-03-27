@@ -1,48 +1,72 @@
 import { LightningElement, wire, track } from 'lwc';
-import { loadScript } from 'lightning/platformResourceLoader';
-import getAccountList from '@salesforce/apex/AccountControllerList.getAccountList';
 import retrieveAccounts from '@salesforce/apex/AccountControllerList.retrieveAccounts';
-import exportData from '@salesforce/apex/AccountControllerList.exportData';
+import fetchRecords from '@salesforce/apex/AccountControllerList.fetchRecords';
+import getCountAndLastUpdated from '@salesforce/apex/AccountControllerList.getCountAndLastUpdated';
+ 
 const columns = [
-    { label: 'Name', fieldName: 'Name', type: 'text' },
-    { label: 'Account Number', fieldName: 'AccountNumber', type: 'text' },
-    { label: 'Employees', fieldName: 'Employees', type: 'number' },
-    { label: 'Annual Revenue', fieldName: 'AnnualRevenue', type: 'currency' }
-];
-export default class ExportDataLWC extends LightningElement {
-@track data;
+    { label: 'Name', fieldName: 'Name' },
+    { label: 'Account Number', fieldName: 'AccountNumber' },
+    { label: 'Employees', fieldName: 'Employees' },
+    { label: 'Annual Revenue', fieldName: 'AnnualRevenue' }
+]; 
+export default class LWCFilterSearchDatatable extends LightningElement {
+    recordCount;
+    lastUpdated;
+    @wire(getCountAndLastUpdated)
+    wiredData({ error, data }) {
+        if (data) {
+            this.recordCount = data.recordCount;
+            this.lastUpdated = data.lastUpdated;
+        } else if (error) {
+            console.error(error);
+        }
+    }
+     accountData = [];
+     @wire(fetchRecords) wiredFunction({data, error}) {
+        if(data) {
+            this.accountData = data;
+    
+        } else if(error) {
+            console.log(error);
+        }
+    }
+    get checkRecord() {
+        return this.accountData.length > 0 ? false : true; 
+    }
+    clickHandler() {
+        let selectedRows = [];
+        let downloadRecords = [];
+        selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows()
+        if(selectedRows.length > 0) {
+            downloadRecords = [...selectedRows];
+        } else {
+            downloadRecords = [...this.accountData];
+        }
+        let csvFile = this.convertArrayToCsv(downloadRecords)
+        this.createLinkForDownload(csvFile);
+    }
+    convertArrayToCsv(downloadRecords) {
+        let csvHeader = Object.keys(downloadRecords[0]).toString() ;
+        console.log('header: '+csvHeader);
+        let csvBody = downloadRecords.map((currItem) => Object.values(currItem).toString());
+        console.log('body: '+csvBody);
+        let csvFile = csvHeader + "\n" + csvBody.join("\n");
+        return csvFile;
+    }
+    createLinkForDownload(csvFile) {
+        const downLink = document.createElement("a");
+        downLink.href = "data:text/csv;charset=utf-8," + encodeURI(csvFile);
+        downLink.target = '_blank';
+        downLink.download = "Account_Record_Data.csv"
+        downLink.click();
+    }
+    @track data;
     @track error;
     @track columns = columns;
     @track searchString;
     @track initialRecords;
-    accounts;
-    columns = columns;
-    @wire(getAccountList)
-    wiredAccounts({ error, data }) {
-        if (data) {
-            this.accounts = data;
-        } else if (error) {
-            console.error('Error retrieving account list:', error);
-        }
-    }
-    handleExport() {
-        exportData()
-            .then(result => {
-                this.downloadCSV(result);
-            })
-            .catch(error => {
-                console.error('Error exporting data: ', error);
-                this.showToast('Error', 'An error occurred while exporting data.', 'error');
-            });
-    }
-   downloadCSV(csvData) {
-        const element = document.createElement('a');
-        element.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvData);
-        element.download = 'exportedData.csv';
-        document.body.appendChild(element);
-        element.click();
-    }
-      @wire(retrieveAccounts)
+ 
+    @wire(retrieveAccounts)
     wiredAccount({ error, data }) {
         if (data) {
             console.log(data);
@@ -54,10 +78,12 @@ export default class ExportDataLWC extends LightningElement {
             this.data = undefined;
         }
     }
-    handleSearch(event) {
+ handleSearch(event) {
         const searchKey = event.target.value.toLowerCase();
+ 
         if (searchKey) {
             this.data = this.initialRecords;
+ 
             if (this.data) {
                 let searchRecords = [];
  
@@ -77,11 +103,12 @@ export default class ExportDataLWC extends LightningElement {
                         }
                     }
                 }
- console.log('Matched Accounts are ' + JSON.stringify(searchRecords));
+ 
+                console.log('Matched Accounts are ' + JSON.stringify(searchRecords));
                 this.data = searchRecords;
                 }
         } else {
             this.data = this.initialRecords;
         }
-} 
+    }
 }

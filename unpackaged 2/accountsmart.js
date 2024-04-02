@@ -1,4 +1,4 @@
-import { LightningElement, wire, track, api } from 'lwc';
+import { LightningElement, wire, track } from 'lwc';
 import retrieveAccounts from '@salesforce/apex/AccountControllerList.retrieveAccounts';
 import fetchRecords from '@salesforce/apex/AccountControllerList.fetchRecords';
 import getCountAndLastUpdated from '@salesforce/apex/AccountControllerList.getCountAndLastUpdated';
@@ -9,61 +9,7 @@ const columns = [
     { label: 'Employees', fieldName: 'Employees' },
     { label: 'Annual Revenue', fieldName: 'AnnualRevenue' }
 ]; 
-
 export default class LWCFilterSearchDatatable extends LightningElement {
-    accounts = [];
-    columnsHeader = ['Name', 'AccountNumber', 'NumberOfEmployees', 'AnnualRevenue', 'Industry', 'Type', 'Rating'];
-    filteredAccounts = [];
-    selectedColumns = [];
-    columnOptions = [
-        { label: 'Industry', value: 'Industry' },
-        { label: 'Type', value: 'Type' },
-        { label: 'Rating', value: 'Rating' }
-    ];
-    searchText = '';
- 
-    connectedCallback() {
-        this.selectedColumns = ['Name', 'AccountNumber', 'NumberOfEmployees', 'AnnualRevenue'];
-    }
- 
-    get displayedColumns() {
-        return this.selectedColumns.map(col => {
-            return { label: col, fieldName: col, type: 'text' };
-        });
-    }
-    @wire(retrieveAccounts)
-    wiredAccounts({ error, data }) {
-        if (data) {
-            this.accounts = data;
-            this.applySearchFilter();
-        } else if (error) {
-            console.error(error);
-        }
-    }
- 
-    handleColumnChange(event) {
-        const selectedValue = event.detail.value;
-        if (selectedValue && !this.selectedColumns.includes(selectedValue)) {
-            this.selectedColumns = [...this.selectedColumns, selectedValue];
-        } else {
-            this.selectedColumns = this.selectedColumns.filter(col => col !== selectedValue);
-        }
-    }
- 
-    handleSearchChange(event) {
-        this.searchText = event.target.value;
-        this.applySearchFilter();
-    }
- 
-    applySearchFilter() {
-        if (this.searchText) {
-            const searchRegex = new RegExp(this.searchText, 'i');
-            this.filteredAccounts = this.accounts.filter(account => searchRegex.test(account.Name));
-        } else {
-              this.filteredAccounts = [...this.accounts];
-        }
-    }
-    // count of records and last updated time.
     recordCount;
     lastUpdated;
     @wire(getCountAndLastUpdated)
@@ -75,7 +21,6 @@ export default class LWCFilterSearchDatatable extends LightningElement {
             console.error(error);
         }
     }
-    // export the lists and all account records.
      accountData = [];
      @wire(fetchRecords) wiredFunction({data, error}) {
         if(data) {
@@ -85,7 +30,6 @@ export default class LWCFilterSearchDatatable extends LightningElement {
             console.log(error);
         }
     }
-    // export
     get checkRecord() {
         return this.accountData.length > 0 ? false : true; 
     }
@@ -116,12 +60,12 @@ export default class LWCFilterSearchDatatable extends LightningElement {
         downLink.download = "Account_Record_Data.csv"
         downLink.click();
     }
-    // search option to search accounts by name. 
     @track data;
     @track error;
     @track columns = columns;
     @track searchString;
-    @track initialRecords; 
+    @track initialRecords;
+ 
     @wire(retrieveAccounts)
     wiredAccount({ error, data }) {
         if (data) {
@@ -136,16 +80,22 @@ export default class LWCFilterSearchDatatable extends LightningElement {
     }
  handleSearch(event) {
         const searchKey = event.target.value.toLowerCase();
+ 
         if (searchKey) {
             this.data = this.initialRecords;
+ 
             if (this.data) {
                 let searchRecords = [];
+ 
                 for (let record of this.data) {
                     let valuesArray = Object.values(record);
+ 
                     for (let val of valuesArray) {
                         console.log('val is ' + val);
                         let strVal = String(val);
+ 
                         if (strVal) {
+ 
                             if (strVal.toLowerCase().includes(searchKey)) {
                                 searchRecords.push(record);
                                 break;
@@ -153,6 +103,7 @@ export default class LWCFilterSearchDatatable extends LightningElement {
                         }
                     }
                 }
+ 
                 console.log('Matched Accounts are ' + JSON.stringify(searchRecords));
                 this.data = searchRecords;
                 }

@@ -2,21 +2,20 @@
     <lightning-card title="Account List" icon-name="standard:account">
          <div>
         <p>Record Count: {recordCount}</p>
-        <p>Last Updated: {lastUpdated}</p>
+        <p>Last Update: {lastUpdate}</p>
         </div>
             <lightning-layout>
-                <lightning-layout-item flexibility="auto" padding="around-small">
-                    <lightning-input label="Search" type="text" value={searchText} onchange={handleSearchChange}> </lightning-input>
+                <lightning-layout-item>
+                    <lightning-input type="search" label="Search Account" value={searchText} onchange={handleSearchChange}> </lightning-input>
                 </lightning-layout-item>
-                <lightning-layout-item flexibility="auto" padding="around-small">
+                <lightning-layout-item>
                     <lightning-combobox label="Select Fields" options={columnOptions} value={selectedColumns} onchange={handleColumnChange}> </lightning-combobox>
                 </lightning-layout-item>
-               <div class ="slds-var-p-around_small">
-        <lightning-button title="Download action" label="Export Data" icon-name="utility:download" onclick={clickHandler} disabled={checkRecord}></lightning-button>
-        <lightning-button label="Add Filter" title="Filter" icon-name="utility:filterList" icon-position="right" class="slds-m-left_x-small"></lightning-button>
-        </div> 
-            </lightning-layout>
-            <lightning-datatable
-                key-field="Id" data={filteredAccounts} columns={displayedColumns}> </lightning-datatable>
+               <div>
+               <lightning-button title="Download action" label="Export Data" icon-name="utility:download" onclick={clickHandler} disabled={checkRecord}></lightning-button>
+               <lightning-button label="Add Filter" title="Filter" icon-name="utility:filterList" icon-position="right" class="slds-m-left_x-small"></lightning-button>
+               </div> 
+               </lightning-layout>
+               <lightning-datatable key-field="Id" data={filteredAccounts} columns={displayedColumns}> </lightning-datatable>
     </lightning-card>
 </template>

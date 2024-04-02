@@ -11,7 +11,7 @@ export default class AccountList extends LightningElement {
     wiredData({ error, data }) {
         if (data) {
             this.recordCount = data.recordCount;
-            this.lastUpdated = data.lastUpdated;
+            this.lastUpdate = new Date().toLocaleString();
         } else if (error) {
             console.error(error);
         }
@@ -77,7 +77,6 @@ export default class AccountList extends LightningElement {
             return { label: col, fieldName: col, type: 'text' };
         });
     }
- 
     @wire(retrieveAccounts)
     wiredAccounts({ error, data }) {
         if (data) {
@@ -87,7 +86,6 @@ export default class AccountList extends LightningElement {
             console.error(error);
         }
     }
- 
     handleColumnChange(event) {
         const selectedValue = event.detail.value;
         if (selectedValue && !this.selectedColumns.includes(selectedValue)) {
@@ -96,12 +94,10 @@ export default class AccountList extends LightningElement {
             this.selectedColumns = this.selectedColumns.filter(col => col !== selectedValue);
         }
     }
- 
     handleSearchChange(event) {
         this.searchText = event.target.value;
         this.applySearchFilter();
     }
- 
     applySearchFilter() {
         if (this.searchText) {
             const searchRegex = new RegExp(this.searchText, 'i');

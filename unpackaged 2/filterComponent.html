@@ -1,19 +1,18 @@
-<!-- filterComponent.html -->
 <template>
     <lightning-card title="Filter Component">
         <div class="slds-p-around_medium">
             <!-- Filter rows -->
             <template for:each={filters} for:item="filter" for:index="index">
                 <div key={filter.key} class="slds-grid slds-gutters">
-                    <lightning-combobox class="slds-col" label="Field" onchange={handleFieldChange} data-index={index} options={comboboxOptions} value={filter.field}></lightning-combobox>
+                    <lightning-combobox class="slds-col" label="Select Field" onchange={handleFieldChange} data-index={index} options={comboboxOptions} value={filter.field}></lightning-combobox>
                     <lightning-combobox class="slds-col" label="Operator" onchange={handleOperatorChange} data-index={index} options={operatorOptions} value={filter.operator}></lightning-combobox>
                     <lightning-input class="slds-col" label="Value" onchange={handleValueChange} data-index={index} value={filter.value}></lightning-input>
                     <lightning-button-icon style="padding-top:20px" icon-name="utility:delete" alternative-text="Delete" onclick={removeFilterRow} data-index={index}></lightning-button-icon>
                 </div>
             </template>
         </div>
-    </lightning-card>
-    <div style="padding-left:270px;">
+         <div style="padding-right:270px;">
         <lightning-button variant="brand" label="Apply Filters" onclick={applyFilters}></lightning-button>
     </div>
+    </lightning-card> 
 </template>
